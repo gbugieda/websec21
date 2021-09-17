@@ -1,0 +1,33 @@
+h1{
+  color:#66FCF1
+}
+p{
+  color:#C5C6C7;
+}
+::placeholder{
+  color:#1F2833;
+}
+input{
+  background-color:#C5C6C7;
+  
+}
+body{
+  background-color:#0B0C10;
+}
+body,input,button{
+  font-family: Geneva;
+}
+
+button{
+  background-color: Transparent;
+  border: 2px solid #45A29E;
+  color: #C5C6C7;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+ul{
+  color: #C5C6C7;
+  list-style-type: square;
+}
