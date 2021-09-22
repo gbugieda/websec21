@@ -54,7 +54,6 @@ $("#clear").on("click",function(){
 $("#send").on("click",function(){
   if (userFlag == 1){
     let date = getDate();
-    alert(date);
     let msg = $("#msg").val();
     let msgObj = {"msg":msg,"user":userId,"date":date};
     rtdb.push(chatRef,msgObj);
