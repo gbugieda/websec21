@@ -37,10 +37,7 @@ $("#submit").on("click",function(){
 })
 
 $("#clear").on("click",function(){
-  alert(1);
   rtdb.set(chatRef,{});
-  //for each loop for each id in chats
-  //chatRef.forEach(removeChat);
 })
 
 /* Sends msg to db */
