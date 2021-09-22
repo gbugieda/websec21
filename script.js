@@ -19,6 +19,7 @@ let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 let userId = "anonymous"
+let userFlag = 0;
 
 
 rtdb.onValue(chatRef, ss=>{
@@ -38,16 +39,11 @@ $("#submit").on("click",function(){
   }
   else{
     userId = $("#uid").val();
-    alert(userId);
     $(".user-auth").hide(); //hide enter userID section
-    $( "<h3 class=header ><strong>USER: " + userId + "</strong></h3>" ).insertAfter( ".user-auth" );
-    //unhide message creation section
-    //hide userId section
-    //display chosen username on screen
+    $( "<h3 class=header >USER: " + userId + "</h3>" ).insertAfter( ".user-auth" );
+    userFlag = 1;
   }
-  //check if name is blank
-  //if name not blank, hide input&submit button
-  //display text in that spot showing username in italics
+ 
 })
 
 $("#clear").on("click",function(){
@@ -56,17 +52,24 @@ $("#clear").on("click",function(){
 
 /* Sends msg to db */
 $("#send").on("click",function(){
-  let msg = $("#msg").val();
-  let msgObj = {"msg":msg};
-  rtdb.push(chatRef,msgObj);
-  $("#msg").val('');
+  if (userFlag == 1){
+    let msg = $("#msg").val();
+    let msgObj = {"msg":msg,"user":userId};
+    rtdb.push(chatRef,msgObj);
+    $("#msg").val('');
+  }
+  else{
+    alert("You must enter a username before sending a message!");
+    $("#msg").val('');
+  }
+  
 })
 
 
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
   Object.keys(chatObj).map(chatID=>{
-    $("#chatHist").append(`<li>${chatObj[chatID]["msg"]}</li>`);
+    $("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
   
 }
