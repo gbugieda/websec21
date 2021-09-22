@@ -53,8 +53,10 @@ $("#clear").on("click",function(){
 /* Sends msg to db */
 $("#send").on("click",function(){
   if (userFlag == 1){
+    let date = getDate();
+    alert(date);
     let msg = $("#msg").val();
-    let msgObj = {"msg":msg,"user":userId};
+    let msgObj = {"msg":msg,"user":userId,"date":date};
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
   }
@@ -71,5 +73,17 @@ function displayChats(chatObj){
   Object.keys(chatObj).map(chatID=>{
     $("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
+  //With date below:
+  //$("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}` + '(' + `<i>${chatObj[chatID]["date"]}` + ')' + `</i></li>`);
+  
+}
+
+function getDate(){
+  let date = new Date();
+  let month = date.getMonth();
+  let day = date.getDate();
+  let year = date.getFullYear();
+  let res = month + '/' + day + '/' + year;
+  return res;
   
 }
