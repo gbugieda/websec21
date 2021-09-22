@@ -46,6 +46,7 @@ $("#send").on("click",function(){
   let msgObj = {"msg":msg};
   rtdb.push(chatRef,msgObj);
   //$("#msg").reset();
+  $("#msg").val('');
 })
 
 
@@ -54,5 +55,5 @@ function displayChats(chatObj){
   Object.keys(chatObj).map(chatID=>{
     $("#chatHist").append(`<li>${chatObj[chatID]["msg"]}</li>`);
   })
-  $("#msg").val('');
+  
 }
