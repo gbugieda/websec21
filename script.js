@@ -18,6 +18,7 @@ const app = initializeApp(firebaseConfig);
 let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
+let userId = "anonymous"
 
 
 rtdb.onValue(chatRef, ss=>{
@@ -31,6 +32,19 @@ rtdb.onChildRemoved(chatRef, ss=>{
 })
 
 $("#submit").on("click",function(){
+  let tempUid = $("#uid").val();
+  if (tempUid.trim().length == 0){ //empty string or only spaces
+    alert("Please enter an actual username!")
+  }
+  else{
+    userId = $("#uid").val();
+    alert(userId);
+    $(".user-auth").hide(); //hide enter userID section
+    $( "<h3 class=header ><strong>USER: " + userId + "</strong></h3>" ).insertAfter( ".user-auth" );
+    //unhide message creation section
+    //hide userId section
+    //display chosen username on screen
+  }
   //check if name is blank
   //if name not blank, hide input&submit button
   //display text in that spot showing username in italics
@@ -45,7 +59,6 @@ $("#send").on("click",function(){
   let msg = $("#msg").val();
   let msgObj = {"msg":msg};
   rtdb.push(chatRef,msgObj);
-  //$("#msg").reset();
   $("#msg").val('');
 })
 
