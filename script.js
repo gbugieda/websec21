@@ -26,6 +26,9 @@ rtdb.onValue(chatRef, ss=>{
     displayChats(message);
   }
 })
+rtdb.onChildRemoved(chatRef, ss=>{
+  $("#chatHist").empty();
+})
 
 $("#submit").on("click",function(){
   //check if name is blank
@@ -34,6 +37,8 @@ $("#submit").on("click",function(){
 })
 
 $("#clear").on("click",function(){
+  alert(1);
+  rtdb.set(chatRef,{});
   //for each loop for each id in chats
   //chatRef.forEach(removeChat);
 })
@@ -48,7 +53,6 @@ $("#send").on("click",function(){
 
 
 function displayChats(chatObj){
-  console.log(chatObj);
   $("#chatHist").empty(); //empty list on page
   Object.keys(chatObj).map(chatID=>{
     $("#chatHist").append(`<li>${chatObj[chatID]["msg"]}</li>`);
