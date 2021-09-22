@@ -1,4 +1,4 @@
-h1{
+.header{
   color:#66FCF1
 }
 p{
@@ -25,6 +25,12 @@ button{
   font-size: 14px;
   text-transform: uppercase;
   letter-spacing: 2px;
+}
+
+button:hover{
+  background-color: #45A29E;
+  color: white;
+  border: 2px solid white;
 }
 
 ul{

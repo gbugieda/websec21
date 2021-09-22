@@ -1,30 +1,31 @@
-// Import the functions you need from the SDKs you need
+//FIREBASE CONNECTION CODE
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import * as rtdb from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyCmaP-2H6R9Osnui1piG8URHOiN4UaXat4",
-    authDomain: "websec21-chatapp.firebaseapp.com",
-    databaseURL: "https://websec21-chatapp-default-rtdb.firebaseio.com",
-    projectId: "websec21-chatapp",
-    storageBucket: "websec21-chatapp.appspot.com",
-    messagingSenderId: "332741772190",
-    appId: "1:332741772190:web:aaa0db201b1a651b914c8f"
-  };
+// Your web app's Firebase configuration
+const firebaseConfig = {
+  apiKey: "AIzaSyCmaP-2H6R9Osnui1piG8URHOiN4UaXat4",
+  authDomain: "websec21-chatapp.firebaseapp.com",
+  databaseURL: "https://websec21-chatapp-default-rtdb.firebaseio.com",
+  projectId: "websec21-chatapp",
+  storageBucket: "websec21-chatapp.appspot.com",
+  messagingSenderId: "332741772190",
+  appId: "1:332741772190:web:aaa0db201b1a651b914c8f"
+};
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-
+// Initialize Firebase & Ref variables
+const app = initializeApp(firebaseConfig);
 let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 
-rtdb.onValue(titleRef, ss=>{
-  //alert(JSON.stringify(ss.val()));
-});
+
+rtdb.onValue(chatRef, ss=>{
+  let message = ss.val();
+  if (!!message){
+    displayChats(message);
+  }
+})
 
 $("#submit").on("click",function(){
   //check if name is blank
@@ -32,12 +33,25 @@ $("#submit").on("click",function(){
   //display text in that spot showing username in italics
 })
 
+$("#clear").on("click",function(){
+  //for each loop for each id in chats
+  //chatRef.forEach(removeChat);
+})
+
+/* Sends msg to db */
 $("#send").on("click",function(){
   let msg = $("#msg").val();
-  rtdb.push(chatRef,msg);
-  let history = document.getElementById("chatHist");
-  let message = document.createElement("li");
-  message.appendChild(document.createTextNode(msg));
-  history.appendChild(message);
-  
+  let msgObj = {"msg":msg};
+  rtdb.push(chatRef,msgObj);
+  //$("#msg").reset();
 })
+
+
+function displayChats(chatObj){
+  console.log(chatObj);
+  $("#chatHist").empty(); //empty list on page
+  Object.keys(chatObj).map(chatID=>{
+    $("#chatHist").append(`<li>${chatObj[chatID]["msg"]}</li>`);
+  })
+  $("#msg").val('');
+}
