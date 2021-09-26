@@ -1,18 +1,25 @@
 .header{
-  color:#66FCF1
+  color:#66FCF1;
+  text-align: center;
 }
 .header-grey{
   color:#C5C6C7;
   font-weight:bold;
+  font-size:x-large;
 }
 p{
   color:#C5C6C7;
 }
 ::placeholder{
-  color:#1F2833;
+  text-align: center;
+  color:#1f283369;
+  font-size: large;
+  letter-spacing: 4px;
+  
 }
 input{
   background-color:#C5C6C7;
+  text-align: center;
   
 }
 body{
@@ -43,13 +50,26 @@ ul{
 }
 
 .user-auth{
+  margin-left: auto;
+  margin-right: auto;
   display: flex;
+  width: 450px;
+  height: 350px;
   flex-direction: column;
-  column-gap: 50px;
-  padding: 20px;
-  justify-content: center, space-around;
-  align-content: space-between;
+  text-align: center;
+  position: center;
+  align-items: center;
+  justify-content:center;
+  border: 10px solid #66fcf2c4;
+  background-color: #66fcf211;;
+
 }
+
+.ua-child{
+  width: 250px;
+  height:75px;
+}
+
 
 .discord{
   display:none;
