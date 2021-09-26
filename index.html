@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <title>Websec Message Board</title>
   <link rel="stylesheet" href="./style.css">
 </head>
@@ -14,18 +15,23 @@
   </div>
 
   <div class="user-auth">
-    <p>Enter a user ID: <input type = "text" id="uid" name="uid" placeholder="Enter user id here">
-      <button type="button" id="submit">Submit</button></br></br>
-    </p>
+    <h2 class="header-grey">LOGIN</h2>
+    <input type="text" id="uid" name="uid" placeholder="USERNAME"></input>
+    <button type="button" id="submit">Login</button></br></br>
+    
   </div>
 
-  <div class="chat-functionality">
-    <p><strong>MESSAGE CREATION:</strong></p>
-    <input type="text" id="msg" name="msg" placeholder="Type Message">
-    <button type="button" id="send">Send Message</button>
-    <button type="button" id="clear">Clear All History</button>
-    <ul id="chatHist" style="list-style-type:none;"> </ul>
+  <div class="discord">
+    <div class="chat-functionality">
+      <p><strong>MESSAGE CREATION:</strong></p>
+      <ul id="chatHist" style="list-style-type:none;"> </ul>
+      <input type="text" id="msg" name="msg" placeholder="Type Message">
+      <button type="button" id="send">Send Message</button>
+      <button type="button" id="clear">Clear All History</button>
+      
+    </div>
   </div>
+  
    
   <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js'></script><script type="module" src="./script.js"></script>
 

@@ -1,6 +1,10 @@
 .header{
   color:#66FCF1
 }
+.header-grey{
+  color:#C5C6C7;
+  font-weight:bold;
+}
 p{
   color:#C5C6C7;
 }
@@ -36,4 +40,17 @@ button:hover{
 ul{
   color: #C5C6C7;
   list-style-type: square;
+}
+
+.user-auth{
+  display: flex;
+  flex-direction: column;
+  column-gap: 50px;
+  padding: 20px;
+  justify-content: center, space-around;
+  align-content: space-between;
+}
+
+.discord{
+  display:none;
 }
