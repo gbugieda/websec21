@@ -86,3 +86,5 @@ function getDate(){
   return res;
   
 }
+
+//if user authenticates, then block discord display none, hide user auth
