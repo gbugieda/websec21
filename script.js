@@ -32,7 +32,7 @@ rtdb.onChildRemoved(chatRef, ss=>{
   $("#chatHist").empty();
 })
 
-$("#submit").on("click",function(){
+$("#login").on("click",function(){
   let tempUid = $("#uid").val();
   if (tempUid.trim().length == 0){ //empty string or only spaces
     alert("Please enter an actual username!")
@@ -41,6 +41,7 @@ $("#submit").on("click",function(){
     userId = $("#uid").val();
     $(".user-auth").hide(); //hide enter userID section
     $( "<h3 class=header >USER: " + userId + "</h3>" ).insertAfter( ".user-auth" );
+    $(".discord").show();
     userFlag = 1;
   }
  
