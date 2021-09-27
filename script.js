@@ -22,16 +22,8 @@ let userId = "anonymous"
 let userFlag = 0;
 
 
-rtdb.onValue(chatRef, ss=>{
-  let message = ss.val();
-  if (!!message){
-    displayChats(message);
-  }
-})
-rtdb.onChildRemoved(chatRef, ss=>{
-  $("#chatHist").empty();
-})
 
+/********* START USER AUTHENTICATION *********/
 $("#login").on("click",function(){
   let tempUid = $("#uid").val();
   if (tempUid.trim().length == 0){ //empty string or only spaces
@@ -44,8 +36,21 @@ $("#login").on("click",function(){
     $(".discord").show();
     userFlag = 1;
   }
- 
 })
+/********* END USER AUTHENTICATION *********/
+
+
+rtdb.onValue(chatRef, ss=>{
+  let message = ss.val();
+  if (!!message){
+    displayChats(message);
+  }
+})
+rtdb.onChildRemoved(chatRef, ss=>{
+  $("#chatHist").empty();
+})
+
+
 
 $("#clear").on("click",function(){
   rtdb.set(chatRef,{});
@@ -68,14 +73,21 @@ $("#send").on("click",function(){
 })
 
 
+$(document).on("click", ".chatElem", function(){
+//  if (userId === 
+})
+
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
   Object.keys(chatObj).map(chatID=>{
-    $("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
+    console.log("howdy");
+    $("#chatHist").append(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
   //With date below:
-  //$("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}` + '(' + `<i>${chatObj[chatID]["date"]}` + ')' + `</i></li>`);
   
+  //$("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}` + '(' + `<i>${chatObj[chatID]["date"]}` + ')' + `</i></li>`);
+  //alert("here");
+
 }
 
 function getDate(){
