@@ -73,14 +73,24 @@ $("#send").on("click",function(){
 })
 
 
-$(document).on("click", ".chatElem", function(){
-//  if (userId === 
+$(document).on("click", ".chatElem", function(event){
+  alert(event.target);
+  if($(this).attr("data-div") !== 'undefined'){
+    let msgID = $(this).attr('data-id');
+    alert(msgID);
+    //$(this).hide();
+    $(this).append(`<input class="inputEdit" "type="text" id="editedChat" name="editedChat">`)
+    //$(this).children().show();
+  }
+  
+  
+  //add edit input right next to element
+
 })
 
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
   Object.keys(chatObj).map(chatID=>{
-    console.log("howdy");
     $("#chatHist").append(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
   //With date below:
