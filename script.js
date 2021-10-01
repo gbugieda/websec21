@@ -72,26 +72,44 @@ $("#send").on("click",function(){
   
 })
 
-
+/*
 $(document).on("click", ".chatElem", function(event){
-  alert(event.target);
+  //alert(event.target);
   if($(this).attr("data-div") !== 'undefined'){
     let msgID = $(this).attr('data-id');
-    alert(msgID);
+    //alert(msgID);
     //$(this).hide();
     $(this).append(`<input class="inputEdit" "type="text" id="editedChat" name="editedChat">`)
     //$(this).children().show();
   }
   
-  
+
   //add edit input right next to element
 
 })
+*/
+
+function editMessage(evt, msgId){
+  //get userID from database
+  //check if user id matches msg ID
+  //if so, allow edit, if not don't allow
+  if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
+    $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg" placeholder="Type Message">`);
+  }
+}
 
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
+  let divide = ": "
   Object.keys(chatObj).map(chatID=>{
-    $("#chatHist").append(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
+    let $li = $(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>${divide}${chatObj[chatID]["msg"]}</li>`);
+    $("#chatHist").append($li);
+    $li.click((event)=>{
+      let clickedChat = $(event.currentTarget).attr("data-id");
+      editMessage(event,clickedChat);
+     // alert("here");
+    })
+   // $("#chatHist").append(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
   //With date below:
   
@@ -111,3 +129,6 @@ function getDate(){
 }
 
 //if user authenticates, then block discord display none, hide user auth
+
+
+/* $("lo") */
