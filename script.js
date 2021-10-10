@@ -1,4 +1,4 @@
-//FIREBASE CONNECTION CODE
+/********* START FIREBASE CONNECTION CODE *********/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import * as rtdb from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
 
@@ -20,6 +20,11 @@ let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 let userId = "anonymous"
 let userFlag = 0;
+
+/********* END FIREBASE CONNECTION CODE *********/
+
+
+
 
 
 
@@ -72,37 +77,27 @@ $("#send").on("click",function(){
   
 })
 
-/*
-$(document).on("click", ".chatElem", function(event){
-  //alert(event.target);
-  if($(this).attr("data-div") !== 'undefined'){
-    let msgID = $(this).attr('data-id');
-    //alert(msgID);
-    //$(this).hide();
-    $(this).append(`<input class="inputEdit" "type="text" id="editedChat" name="editedChat">`)
-    //$(this).children().show();
-  }
-  
 
-  //add edit input right next to element
 
-})
-*/
-
+//TODO: If current content editable is insecure, adapt this function to fix security issues
 function editMessage(evt, msgId){
   //get userID from database
   //check if user id matches msg ID
   //if so, allow edit, if not don't allow
-  if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
-    $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg" placeholder="Type Message">`);
-  }
+  //if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
+   // console.log(child(String(msgId)));
+    //$(`[data-id=${msgId}]`).hide();
+   // $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg" >`);
+   // $(`[data-id=${msgId}]`).children().show();
+  //}
 }
 
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
   let divide = ": "
   Object.keys(chatObj).map(chatID=>{
-    let $li = $(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>${divide}${chatObj[chatID]["msg"]}</li>`);
+    //CHECK W/ PROF if I leave following code like this, can someone change plaintext only to true, thus incurring security issue
+    let $li = $(`<li class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span contenteditable='plaintext-only'> ${chatObj[chatID]["msg"]}</span></li>`);
     $("#chatHist").append($li);
     $li.click((event)=>{
       let clickedChat = $(event.currentTarget).attr("data-id");
@@ -129,6 +124,3 @@ function getDate(){
 }
 
 //if user authenticates, then block discord display none, hide user auth
-
-
-/* $("lo") */
