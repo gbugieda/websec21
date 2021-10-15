@@ -19,6 +19,7 @@ p{
 input{
   background-color:#C5C6C7;
   text-align: center;
+
   
 }
 body{
@@ -52,8 +53,8 @@ ul{
   margin-left: auto;
   margin-right: auto;
   display: flex;
-  width: 450px;
-  height: 350px;
+  width: 550px;
+  height: 450px;
   flex-direction: column;
   text-align: center;
   position: center;
@@ -63,11 +64,22 @@ ul{
   background-color: #66fcf211;;
 
 }
-
-.ua-child{
-  width: 250px;
-  height:75px;
+/*
+.user-auth-reg, .user-auth-login{
+  display:none;
 }
+*/
+
+/* prior, it was 350, 75*/
+.ua-child{ 
+  width: 350px;
+  height:45px;
+}
+/*
+.user-auth-reg{
+  display:none;
+}
+*/
 
 
 .discord{

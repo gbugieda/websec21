@@ -1,6 +1,7 @@
 /********* START FIREBASE CONNECTION CODE *********/
 import { initializeApp } from "https://www.gstatic.com/firebasejs/9.0.2/firebase-app.js";
 import * as rtdb from "https://www.gstatic.com/firebasejs/9.0.2/firebase-database.js";
+import * as fbauth from "https://www.gstatic.com/firebasejs/9.0.2/firebase-auth.js"
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -18,8 +19,10 @@ const app = initializeApp(firebaseConfig);
 let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
+let userRef = rtdb.child(titleRef,"users")
 let userId = "anonymous"
 let userFlag = 0;
+let auth = fbauth.getAuth(app);
 
 /********* END FIREBASE CONNECTION CODE *********/
 
@@ -30,18 +33,57 @@ let userFlag = 0;
 
 /********* START USER AUTHENTICATION *********/
 $("#login").on("click",function(){
+  //show login options and hide register options
+  $(".user-auth-reg").hide();
+  $(".user-auth-login").show()();
+
+  //signInWithEmailAndPassword
+  //retrieve username
+  /*
   let tempUid = $("#uid").val();
   if (tempUid.trim().length == 0){ //empty string or only spaces
     alert("Please enter an actual username!")
   }
   else{
     userId = $("#uid").val();
-    $(".user-auth").hide(); //hide enter userID section
+    $(".user-auth-login").hide(); //hide enter userID section
     $( "<h3 class=header >USER: " + userId + "</h3>" ).insertAfter( ".user-auth" );
     $(".discord").show();
     userFlag = 1;
   }
+  */
 })
+
+
+
+
+$("#register").on("click",function(){
+  //$(".user-auth-login").hide();
+  //$(".user-auth-reg").show();
+  let email = $("#regEmail").val();
+  let password = $("#regPassword").val();
+  let username = $("#regUsername").val();
+
+  fbauth.createUserWithEmailAndPassword(auth, email, password).then(userData=>{
+    let uid = userData.user.uid;
+    rtdb.set(userRef,true);
+    }).catch(function(error){
+    let errorCode = error.code;
+    let errorMsg = error.message;
+    console.log(errorCode);
+    console.log(errorMsg);
+  })
+})
+
+
+/*
+fbauth().createUserWithEmailAndPassword(email,password).catch(function(error){
+  let errorCode = error.code;
+  let errorMsg = error.message;
+  console.log(errorCode);
+  console.log(errorMsg);
+})
+*/
 /********* END USER AUTHENTICATION *********/
 
 
