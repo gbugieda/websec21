@@ -65,14 +65,25 @@ $("#register").on("click",function(){
   let username = $("#regUsername").val();
 
   fbauth.createUserWithEmailAndPassword(auth, email, password).then(userData=>{
+    
     let uid = userData.user.uid;
-    rtdb.set(userRef,true);
+    let userObj = {"uid":uid,"username":username,"roles":{"user":true}};
+    rtdb.push(userRef,userObj);
+
     }).catch(function(error){
     let errorCode = error.code;
     let errorMsg = error.message;
+    if (errorCode == "auth/weak-password"){
+      alert("Password needs to be at least 6 characters!");
+    }
     console.log(errorCode);
     console.log(errorMsg);
   })
+  $(".user-auth").hide();
+  $( "<h3 class=header >USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
+  $(".discord").show();
+  userFlag = 1;
+
 })
 
 
