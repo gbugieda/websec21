@@ -7,7 +7,7 @@
   font-weight:bold;
   font-size:x-large;
 }
-p{
+p, div{
   color:#C5C6C7;
 }
 ::placeholder{
@@ -84,4 +84,37 @@ ul{
 
 .discord{
   display:none;
+  box-sizing:border-box;
+
+
 }
+
+.channels, .chat-functionality, .active-users{
+  float: left;
+  color: white;
+  padding: 30px;
+  height: 500px;
+  
+}
+
+.channels{
+  width:20%;
+  text-align: center;
+  border: 10px solid#3e3e41;
+  border-right:5px;
+
+}
+
+.chat-functionality{
+  width:40%;
+  float:center;
+  border: 10px solid#3e3e41;
+  border-right:5px;
+  
+}
+.active-users{
+  width:15%;
+  text-align: center;
+  border: 10px solid#3e3e41;
+}
+

@@ -34,8 +34,23 @@ let auth = fbauth.getAuth(app);
 /********* START USER AUTHENTICATION *********/
 $("#login").on("click",function(){
   //show login options and hide register options
-  $(".user-auth-reg").hide();
-  $(".user-auth-login").show()();
+  //$(".user-auth-reg").hide();
+  //$(".user-auth-login").show()();
+  let email = $("#userEmail").val();
+  let password = $("#userPassword").val()
+
+  fbauth.signInWithEmailAndPassword(auth, email, password).then(userData=>{
+    }).catch(function(error){
+    let errorCode = error.code;
+    let errorMsg = error.message;
+    console.log(errorCode);
+    console.log(errorMsg);
+  })
+  $(".user-auth").hide();
+  //$( "<h3 class=header >USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
+  $(".discord").show();
+  userFlag = 1;
+
 
   //signInWithEmailAndPassword
   //retrieve username
@@ -87,6 +102,9 @@ $("#register").on("click",function(){
 })
 
 
+fbauth.onAuthStateChanged(auth, user=>{
+  
+})
 /*
 fbauth().createUserWithEmailAndPassword(email,password).catch(function(error){
   let errorCode = error.code;
