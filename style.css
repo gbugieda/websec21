@@ -125,7 +125,7 @@ ul{
 .chat-functionality-msg{
   overflow:auto; 
   display:flex; 
-  flex-direction:column-reverse;
+  flex-direction:column;
   height: 350px;
   width: 200px;
 

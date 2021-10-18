@@ -21,6 +21,7 @@ let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 let userRef = rtdb.child(titleRef,"users")
 let channelRef = rtdb.child(titleRef,"channels");
+let currentChannel = "general";
 
 let userName = "";
 let userFlag = 0;
@@ -176,6 +177,7 @@ $("#send").on("click",function(){
     let date = getDate();
     let msg = $("#msg").val();
     let msgObj = {"msg":msg,"user":userName,"date":date};
+    let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
   }
@@ -192,7 +194,7 @@ $("#addChannel").on("click",function(){
   //let userRef = rtdb.ref(db, `/users/${uid}`);
   //  rtdb.update(userRef,userObj);
   let channelRef = rtdb.child(titleRef,channelName);
-
+  //need to get chat refs for all of this specific channel
   rtdb.push(channelRef,{"test":true});
 })
 
