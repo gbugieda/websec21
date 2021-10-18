@@ -20,7 +20,7 @@ let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 let userRef = rtdb.child(titleRef,"users")
-let userId = "";
+let userName = "";
 let userFlag = 0;
 let auth = fbauth.getAuth(app);
 //et user = fbauth.getCurrentUser;
@@ -54,16 +54,8 @@ $("#login").on("click",function(){
     console.log("success");
     console.log(currUser);
     let uid = currUser.user.uid;
-    
-    let currUserRef = rtdb.ref(db, `/users/${uid}/username`);
-    rtdb.get(currUserRef).then(ss=>{
-      userId= ss.val();
-      renderDiscord(userId);
-    })
-
-    
-
-
+    userName = currUser.user.displayName;
+    renderDiscord(userName);
     
     }).catch(function(error){
     let errorCode = error.code;
@@ -85,26 +77,19 @@ $("#register").on("click",function(){
   let password = $("#regPassword").val();
   let username = $("#regUsername").val();
 
-  fbauth.createUserWithEmailAndPassword(auth, email, password).then(newUser=>{
+  fbauth.createUserWithEmailAndPassword(auth, email, password,{displayName:username}).then(newUser=>{
     
     let uid = newUser.user.uid;
     let userObj = {"uid":uid,"username":username,"roles":{"user":true}};
     let userRef = rtdb.ref(db, `/users/${uid}`);
     rtdb.update(userRef,userObj);
-    console.log(auth.user);  
-    /*
-    auth.user.updateProfile({
-      displayName: username
-    })
-*/  ///userId = username;
-    //newUser.user.displayName = username;
-    /*
-    newUser.user.updateProfile({  displayName: "Jane Q. User",  photoURL: "https://example.com/jane-q-user/profile.jpg"}).then(function() {  // Update successful.
-  }).catch(function(error) {  // An error happened.
+
+    fbauth.updateProfile(auth.currentUser,{
+      displayName: username,
+      photoURL: ""
+    }).then(function() {
+    }, function(error) {
     });
-    */
-    //console.log(newUser.user);
-    renderDiscord(username);  //once I get this working, might make on authstate change
 
     }).catch(function(error){
     let errorCode = error.code;
@@ -118,6 +103,8 @@ $("#register").on("click",function(){
 
   fbauth.signOut(auth).then(()=>{
     let userId = "";
+    $('.user-auth-reg').find('input:text').val('');
+    $('.user-auth-reg').find('input:password').val('');
     console.log("sign out success");
   })
   
@@ -143,19 +130,6 @@ $("#resetPassword").on("click",function(){
 })
 
 
-
-/*
-fbauth.onAuthStateChanged(auth, user=>{
-  
-}) */
-/*
-fbauth().createUserWithEmailAndPassword(email,password).catch(function(error){
-  let errorCode = error.code;
-  let errorMsg = error.message;
-  console.log(errorCode);
-  console.log(errorMsg);
-})
-*/
 /********* END USER AUTHENTICATION *********/
 
 
@@ -180,7 +154,7 @@ $("#send").on("click",function(){
   if (userFlag == 1){
     let date = getDate();
     let msg = $("#msg").val();
-    let msgObj = {"msg":msg,"user":userId,"date":date};
+    let msgObj = {"msg":msg,"user":userName,"date":date};
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
   }
@@ -236,5 +210,3 @@ function getDate(){
   return res;
   
 }
-
-//if user authenticates, then block discord display none, hide user auth

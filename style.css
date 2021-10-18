@@ -112,7 +112,12 @@ ul{
   float:center;
   border: 10px solid#3e3e41;
   border-right:5px;
-  
+  display: flex;
+}
+.chat-functionality-send{
+  position: absolute;
+  align-items: baseline;
+  align-self:flex-end;
 }
 .active-users{
   width:15%;
