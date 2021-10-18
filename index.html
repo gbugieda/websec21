@@ -13,6 +13,7 @@
   <div class="header">
     <h1><strong>WEBSEC Message Board</strong></h1>
   </div>
+  <button type=button id=logout>LOG OUT</button>
 
   <div class="user-auth">
     <h2 class="header-grey">LOGIN</h2>
@@ -32,19 +33,24 @@
     </div>
     <button class="ua-child" type="button" id="register">Register</button></br></br>
   </div>
-
+  
   <div class="discord">
     <div class="channels">
       <div>CHANNELS</div>
-      <ul id="channelList" style="list-style-type:none;"> </ul>
+      <ul id="channelList" style="list-style-type:none;"> 
+        <li>general</li>
+        <li>admins-only</li>
+      </ul>
+      <input type="text" id="addChannelBox" name="newChannel" placeholder="New Channel Name">
+      <button type="button" id="addChannel">Add Channel</button>
+
     </div>
     <div class="chat-functionality">
-      <p><strong>MESSAGES</strong></p>
-      <ul id="chatHist" style="list-style-type:none;"> </ul>
+      <p><strong>MESSAGES</strong></p></br></br>
+      <ul class="chat-functionality-msg" id="chatHist" style="list-style-type:none;"> </ul>
       <div class="chat-functionality-send">
         <input type="text" id="msg" name="msg" placeholder="Type Message">
         <button type="button" id="send">Send Message</button>
-        <button type="button" id="clear">Clear All History</button>
       </div>
     </div>
     <div class="active-users">

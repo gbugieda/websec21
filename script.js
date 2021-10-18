@@ -20,6 +20,8 @@ let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 let userRef = rtdb.child(titleRef,"users")
+let channelRef = rtdb.child(titleRef,"channels");
+
 let userName = "";
 let userFlag = 0;
 let auth = fbauth.getAuth(app);
@@ -36,7 +38,13 @@ let auth = fbauth.getAuth(app);
 
 function renderDiscord(username){
   $(".user-auth").hide();
-  $( "<h3 class=header >USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
+  $("<div class=user-info></div>").insertAfter( ".user-auth" );
+  $("#logout").show();
+  $(".user-info").append($( "<h3 class=header  id=screenName>USER: " + username + "</h3>" ));
+ // $(".user-info").append($( ""));
+ // $( "<h3 class=header id=screenName>USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
+  //$( "<button type=button id=logout>LOG OUT</button>").insertAfter( "#screenName" );
+  //$("#screenName,#logout").css('display','inline-block');
   $(".discord").show();
   userFlag = 1;
 }
@@ -66,6 +74,18 @@ $("#login").on("click",function(){
 
 })
 
+$("#logout").on("click",function(){
+  fbauth.signOut(auth).then(()=>{
+    let userId = "";
+    $('.user-auth-login').find('input:text').val('');
+    $('.user-auth-login').find('input:password').val('');
+    $('.discord').hide();
+    $('.user-info').hide();
+    $('#logout').hide();
+    $(".user-auth").show()();
+    console.log("sign out success");
+  })
+})
 
 
 
@@ -80,7 +100,7 @@ $("#register").on("click",function(){
   fbauth.createUserWithEmailAndPassword(auth, email, password,{displayName:username}).then(newUser=>{
     
     let uid = newUser.user.uid;
-    let userObj = {"uid":uid,"username":username,"roles":{"user":true}};
+    let userObj = {"uid":uid,"username":username,active:true,"roles":{"user":true}};
     let userRef = rtdb.ref(db, `/users/${uid}`);
     rtdb.update(userRef,userObj);
 
@@ -144,10 +164,11 @@ rtdb.onChildRemoved(chatRef, ss=>{
 })
 
 
-
+/*
 $("#clear").on("click",function(){
   rtdb.set(chatRef,{});
 })
+*/
 
 /* Sends msg to db */
 $("#send").on("click",function(){
@@ -165,7 +186,15 @@ $("#send").on("click",function(){
   
 })
 
+$("#addChannel").on("click",function(){
+  let channelName = $("#addChannelBox").val();
+  // channelJson = {"channel-chats":}
+  //let userRef = rtdb.ref(db, `/users/${uid}`);
+  //  rtdb.update(userRef,userObj);
+  let channelRef = rtdb.child(titleRef,channelName);
 
+  rtdb.push(channelRef,{"test":true});
+})
 
 //TODO: If current content editable is insecure, adapt this function to fix security issues
 function editMessage(evt, msgId){

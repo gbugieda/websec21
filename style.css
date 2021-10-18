@@ -84,6 +84,11 @@ ul{
   display:none;
 }
 
+#logout{
+  display:none;
+  float:right;
+}
+
 .discord{
   display: none;
   box-sizing:border-box;
@@ -102,26 +107,39 @@ ul{
 .channels{
   width:20%;
   text-align: center;
-  border: 10px solid#3e3e41;
+  border: 10px solid#45A29E;
   border-right:5px;
 
+}
+#channelList{
+  text-align:left;
 }
 
 .chat-functionality{
   width:40%;
   float:center;
-  border: 10px solid#3e3e41;
+  border: 10px solid#45A29E;
   border-right:5px;
   display: flex;
+}
+.chat-functionality-msg{
+  overflow:auto; 
+  display:flex; 
+  flex-direction:column-reverse;
+  height: 350px;
+  width: 200px;
+
+
 }
 .chat-functionality-send{
   position: absolute;
   align-items: baseline;
   align-self:flex-end;
+  float:right;
 }
 .active-users{
   width:15%;
   text-align: center;
-  border: 10px solid#3e3e41;
+  border: 10px solid#45A29E;
 }
 
