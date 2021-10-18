@@ -18,10 +18,13 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
-let chatRef = rtdb.child(titleRef,"chats")
+
 let userRef = rtdb.child(titleRef,"users")
-let channelRef = rtdb.child(titleRef,"channels");
 let currentChannel = "general";
+let channelRef = rtdb.child(titleRef,"channels");
+let channelCreatedRef = rtdb.ref(db, `/channels/${currentChannel}`);
+let chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
+
 
 let userName = "";
 let userFlag = 0;
@@ -165,6 +168,12 @@ rtdb.onChildRemoved(chatRef, ss=>{
 })
 
 
+rtdb.onValue(channelRef, ss=>{
+  let channel = ss.val();
+  if (!!channel){
+    displayChannel(channel);
+  }
+})
 /*
 $("#clear").on("click",function(){
   rtdb.set(chatRef,{});
@@ -177,7 +186,7 @@ $("#send").on("click",function(){
     let date = getDate();
     let msg = $("#msg").val();
     let msgObj = {"msg":msg,"user":userName,"date":date};
-    let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
+    //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
   }
@@ -188,15 +197,31 @@ $("#send").on("click",function(){
   
 })
 
+
+function loadChannels(){
+  rtdb.onValue(channelCreatedRef, ss=>{
+    let message = ss.val();
+    if (!!message){
+      displayChats(message);
+    }
+  })
+}
+
+
 $("#addChannel").on("click",function(){
+  alert(1);
   let channelName = $("#addChannelBox").val();
-  // channelJson = {"channel-chats":}
-  //let userRef = rtdb.ref(db, `/users/${uid}`);
-  //  rtdb.update(userRef,userObj);
-  let channelRef = rtdb.child(titleRef,channelName);
-  //need to get chat refs for all of this specific channel
-  rtdb.push(channelRef,{"test":true});
+  let currentChannel = channelName;
+  channelCreatedRef = rtdb.ref(db, `/channels/${currentChannel}`);
+  //call load chat function, 
+  loadChannels();
+  alert(1);
+
 })
+
+
+
+
 
 //TODO: If current content editable is insecure, adapt this function to fix security issues
 function editMessage(evt, msgId){
@@ -210,7 +235,22 @@ function editMessage(evt, msgId){
    // $(`[data-id=${msgId}]`).children().show();
   //}
 }
+function displayChats(chatObj){
+  $("#chatHist").empty(); //empty list on page
+  let divide = ": "
+  Object.keys(chatObj).map(channelID=>{
+    let $li = $(`<li class="channelElem"  data-id=${channelID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span contenteditable='plaintext-only'> ${chatObj[chatID]["msg"]}</span></li>`);
+    $("#chatHist").append($li);
+    $li.click((event)=>{
+      let clickedChat = $(event.currentTarget).attr("data-id");
+     // editMessage(event,clickedChat);
 
+    })
+  
+  })
+
+
+}
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
   let divide = ": "
@@ -241,3 +281,5 @@ function getDate(){
   return res;
   
 }
+
+
