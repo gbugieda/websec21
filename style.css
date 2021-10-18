@@ -80,10 +80,12 @@ ul{
   display:none;
 }
 */
-
+.user-auth-reg, .user-auth-reset{
+  display:none;
+}
 
 .discord{
-  display:none;
+  display: none;
   box-sizing:border-box;
 
 
@@ -93,7 +95,7 @@ ul{
   float: left;
   color: white;
   padding: 30px;
-  height: 500px;
+  height: 400px;
   
 }
 

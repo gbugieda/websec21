@@ -20,9 +20,10 @@ let db = rtdb.getDatabase(app);
 let titleRef = rtdb.ref(db, "/");
 let chatRef = rtdb.child(titleRef,"chats")
 let userRef = rtdb.child(titleRef,"users")
-let userId = "anonymous"
+let userId = "";
 let userFlag = 0;
 let auth = fbauth.getAuth(app);
+//et user = fbauth.getCurrentUser;
 
 /********* END FIREBASE CONNECTION CODE *********/
 
@@ -32,58 +33,78 @@ let auth = fbauth.getAuth(app);
 
 
 /********* START USER AUTHENTICATION *********/
+
+function renderDiscord(username){
+  $(".user-auth").hide();
+  $( "<h3 class=header >USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
+  $(".discord").show();
+  userFlag = 1;
+}
+
+
 $("#login").on("click",function(){
   //show login options and hide register options
-  //$(".user-auth-reg").hide();
-  //$(".user-auth-login").show()();
+  $(".user-auth-reg").hide();
+  $(".user-auth-reset").hide();
+  $(".user-auth-login").show();
   let email = $("#userEmail").val();
   let password = $("#userPassword").val()
 
-  fbauth.signInWithEmailAndPassword(auth, email, password).then(userData=>{
+  fbauth.signInWithEmailAndPassword(auth, email, password).then(currUser=>{
+    console.log("success");
+    console.log(currUser);
+    let uid = currUser.user.uid;
+    
+    let currUserRef = rtdb.ref(db, `/users/${uid}/username`);
+    rtdb.get(currUserRef).then(ss=>{
+      userId= ss.val();
+      renderDiscord(userId);
+    })
+
+    
+
+
+    
     }).catch(function(error){
     let errorCode = error.code;
     let errorMsg = error.message;
     console.log(errorCode);
     console.log(errorMsg);
   })
-  $(".user-auth").hide();
-  //$( "<h3 class=header >USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
-  $(".discord").show();
-  userFlag = 1;
 
-
-  //signInWithEmailAndPassword
-  //retrieve username
-  /*
-  let tempUid = $("#uid").val();
-  if (tempUid.trim().length == 0){ //empty string or only spaces
-    alert("Please enter an actual username!")
-  }
-  else{
-    userId = $("#uid").val();
-    $(".user-auth-login").hide(); //hide enter userID section
-    $( "<h3 class=header >USER: " + userId + "</h3>" ).insertAfter( ".user-auth" );
-    $(".discord").show();
-    userFlag = 1;
-  }
-  */
 })
 
 
 
 
 $("#register").on("click",function(){
-  //$(".user-auth-login").hide();
-  //$(".user-auth-reg").show();
+  $(".user-auth-login").hide();
+  $(".user-auth-reset").hide();
+  $(".user-auth-reg").show();
   let email = $("#regEmail").val();
   let password = $("#regPassword").val();
   let username = $("#regUsername").val();
 
-  fbauth.createUserWithEmailAndPassword(auth, email, password).then(userData=>{
+  fbauth.createUserWithEmailAndPassword(auth, email, password).then(newUser=>{
     
-    let uid = userData.user.uid;
+    let uid = newUser.user.uid;
     let userObj = {"uid":uid,"username":username,"roles":{"user":true}};
-    rtdb.push(userRef,userObj);
+    let userRef = rtdb.ref(db, `/users/${uid}`);
+    rtdb.update(userRef,userObj);
+    console.log(auth.user);  
+    /*
+    auth.user.updateProfile({
+      displayName: username
+    })
+*/  ///userId = username;
+    //newUser.user.displayName = username;
+    /*
+    newUser.user.updateProfile({  displayName: "Jane Q. User",  photoURL: "https://example.com/jane-q-user/profile.jpg"}).then(function() {  // Update successful.
+  }).catch(function(error) {  // An error happened.
+    });
+    */
+    //console.log(newUser.user);
+    renderDiscord(username);  //once I get this working, might make on authstate change
 
     }).catch(function(error){
     let errorCode = error.code;
@@ -94,17 +115,39 @@ $("#register").on("click",function(){
     console.log(errorCode);
     console.log(errorMsg);
   })
-  $(".user-auth").hide();
-  $( "<h3 class=header >USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
-  $(".discord").show();
-  userFlag = 1;
+
+  fbauth.signOut(auth).then(()=>{
+    let userId = "";
+    console.log("sign out success");
+  })
+  
+
+})
+
+$("#resetPassword").on("click",function(){
+  $(".user-auth-login").hide();
+  $(".user-auth-reg").hide();
+  $(".user-auth-reset").show();
+  let email = $("#userEmailReset").val();
+
+  fbauth.sendPasswordResetEmail(auth, email)
+  .then(() => {
+    alert("Password reset email sent!");
+  })
+  .catch((error) => {
+    const errorCode = error.code;
+    const errorMessage = error.message;
+    // ..
+  });
 
 })
 
 
+
+/*
 fbauth.onAuthStateChanged(auth, user=>{
   
-})
+}) */
 /*
 fbauth().createUserWithEmailAndPassword(email,password).catch(function(error){
   let errorCode = error.code;

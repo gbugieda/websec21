@@ -21,6 +21,10 @@
       <input class="ua-child" type="password" id="userPassword" placeholder="PASSWORD"></input></br>
     </div>
     <button class="ua-child" type="button" id="login">Login</button></br>
+    <div class="user-auth-reset">
+      <input class="ua-child" type="text" id="userEmailReset" placeholder="EMAIL FOR PASSWORD RESET"></input></br>
+    </div>
+    <button class="ua-child" type="button" id="resetPassword">Reset Password</button></br>
     <div class="user-auth-reg">
       <input class="ua-child" type="text" id="regUsername" placeholder="USERNAME"></input></br>
       <input class="ua-child" type="text" id="regEmail" placeholder="EMAIL"></input></br>
@@ -32,9 +36,10 @@
   <div class="discord">
     <div class="channels">
       <div>CHANNELS</div>
+      <ul id="channelList" style="list-style-type:none;"> </ul>
     </div>
     <div class="chat-functionality">
-      <p><strong>MESSAGE CREATION:</strong></p>
+      <p><strong>MESSAGES</strong></p>
       <ul id="chatHist" style="list-style-type:none;"> </ul>
       <input type="text" id="msg" name="msg" placeholder="Type Message">
       <button type="button" id="send">Send Message</button>
