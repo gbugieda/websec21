@@ -236,12 +236,32 @@ function editMessage(evt, msgId){
   //get userID from database
   //check if user id matches msg ID
   //if so, allow edit, if not don't allow
-  //if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
-   // console.log(child(String(msgId)));
+  if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
+    //console.log(child(String(msgId)));
+    alert(msgId);
+   // $(`[data-id=${msgId}]`).attr()
     //$(`[data-id=${msgId}]`).hide();
-   // $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg" >`);
-   // $(`[data-id=${msgId}]`).children().show();
-  //}
+  
+   $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg">`);
+   $(`[data-id=${msgId}]`).append(`<button id=editChat>Make Edit</button>`);
+   $(`[data-id=${msgId}]`).append(`<button id=cancelEditChat>Cancel</button>`);
+
+  
+
+   
+   $("#editChat").on("click",function(){
+     //console.log("here edit click");
+    let editedMsg = $("#editMsg").val();
+    //alert(editedMsg);
+    let editRef = rtdb.ref(db, `/channels/${currentChannel}/chats/${msgId}`);
+    rtdb.update(editRef,{"msg":editedMsg});
+    
+   });
+   $("#cancelEditChat").on("click",function(){
+    $(`[data-id=${msgId}]`).empty();
+  });
+
+  }
 }
 
 function displayChannels(channelObj){
@@ -259,13 +279,7 @@ function displayChannels(channelObj){
       chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
       loadChats();
     })
-    /*
-    $li.click((event)=>{
-      let clickedChat = $(event.currentTarget).attr("data-id");
-     // editMessage(event,clickedChat);
 
-    })
-  */
   })
 
 
@@ -276,7 +290,7 @@ function displayChats(chatObj){
   if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
     //CHECK W/ PROF if I leave following code like this, can someone change plaintext only to true, thus incurring security issue
-    let $li = $(`<li class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span contenteditable='plaintext-only'> ${chatObj[chatID]["msg"]}</span></li>`);
+    let $li = $(`<li class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span> ${chatObj[chatID]["msg"]}</span></li>`);
     $("#chatHist").append($li);
     $li.click((event)=>{
       let clickedChat = $(event.currentTarget).attr("data-id");
