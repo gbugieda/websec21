@@ -115,6 +115,10 @@ ul{
   text-align:left;
 }
 
+.channelElem{
+  background-color:#023331
+}
+
 .chat-functionality{
   width:40%;
   float:center;

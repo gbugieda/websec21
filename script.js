@@ -22,6 +22,7 @@ let titleRef = rtdb.ref(db, "/");
 let userRef = rtdb.child(titleRef,"users")
 let currentChannel = "general";
 let channelRef = rtdb.child(titleRef,"channels");
+let channelNavRef = rtdb.child(titleRef,"channel-nav");
 let channelCreatedRef = rtdb.ref(db, `/channels/${currentChannel}`);
 let chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
 
@@ -68,7 +69,7 @@ $("#login").on("click",function(){
     let uid = currUser.user.uid;
     userName = currUser.user.displayName;
     renderDiscord(userName);
-    
+    loadChats();
     }).catch(function(error){
     let errorCode = error.code;
     let errorMsg = error.message;
@@ -156,22 +157,25 @@ $("#resetPassword").on("click",function(){
 
 /********* END USER AUTHENTICATION *********/
 
-
-rtdb.onValue(chatRef, ss=>{
+function loadChats(){
+  rtdb.onValue(chatRef, ss=>{
   let message = ss.val();
-  if (!!message){
-    displayChats(message);
-  }
-})
+  //if (!!message){
+     displayChats(message);
+ // }
+  })
+} 
+
 rtdb.onChildRemoved(chatRef, ss=>{
   $("#chatHist").empty();
 })
 
 
-rtdb.onValue(channelRef, ss=>{
+rtdb.onValue(channelNavRef, ss=>{
   let channel = ss.val();
   if (!!channel){
-    displayChannel(channel);
+    console.log(channel);
+    displayChannels(channel);
   }
 })
 /*
@@ -189,6 +193,7 @@ $("#send").on("click",function(){
     //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
+    loadChats();
   }
   else{
     alert("You must enter a username before sending a message!");
@@ -209,13 +214,16 @@ function loadChannels(){
 
 
 $("#addChannel").on("click",function(){
-  alert(1);
   let channelName = $("#addChannelBox").val();
-  let currentChannel = channelName;
-  channelCreatedRef = rtdb.ref(db, `/channels/${currentChannel}`);
+  let currChannel = channelName;
+  channelCreatedRef = rtdb.ref(db, `/channels/${currChannel}`);
+  chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
+  let navRef = rtdb.ref(db,`/channel-nav/${currChannel}/`);
   //call load chat function, 
+ // let channelInfoRef = rtdb.ref(db, `/channels/${currentChannel}/info`);
+  rtdb.push(navRef,{"active":true});
   loadChannels();
-  alert(1);
+  loadChats();
 
 })
 
@@ -235,18 +243,29 @@ function editMessage(evt, msgId){
    // $(`[data-id=${msgId}]`).children().show();
   //}
 }
-function displayChats(chatObj){
-  $("#chatHist").empty(); //empty list on page
-  let divide = ": "
-  Object.keys(chatObj).map(channelID=>{
-    let $li = $(`<li class="channelElem"  data-id=${channelID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span contenteditable='plaintext-only'> ${chatObj[chatID]["msg"]}</span></li>`);
-    $("#chatHist").append($li);
+
+function displayChannels(channelObj){
+  $("#channelList").empty(); //empty list on page
+
+  Object.keys(channelObj).map(channelID=>{
+    console.log(channelID);
+    let $li = $(`<button class="channelElem" id=${channelID}>${channelID}</button>`);
+    $("#channelList").append($li);
+    $li.click((event)=>{
+      
+      //let clickedChat = $(event.currentTarget).attr("data-id");
+      currentChannel = $(event.currentTarget).attr("id");
+      alert(currentChannel);
+      chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
+      loadChats();
+    })
+    /*
     $li.click((event)=>{
       let clickedChat = $(event.currentTarget).attr("data-id");
      // editMessage(event,clickedChat);
 
     })
-  
+  */
   })
 
 
@@ -254,6 +273,7 @@ function displayChats(chatObj){
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
   let divide = ": "
+  if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
     //CHECK W/ PROF if I leave following code like this, can someone change plaintext only to true, thus incurring security issue
     let $li = $(`<li class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span contenteditable='plaintext-only'> ${chatObj[chatID]["msg"]}</span></li>`);
@@ -266,7 +286,7 @@ function displayChats(chatObj){
    // $("#chatHist").append(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
   //With date below:
-  
+}
   //$("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}` + '(' + `<i>${chatObj[chatID]["date"]}` + ')' + `</i></li>`);
   //alert("here");
 
