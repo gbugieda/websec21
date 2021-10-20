@@ -27,10 +27,9 @@ let channelCreatedRef = rtdb.ref(db, `/channels/${currentChannel}`);
 let chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
 
 
-let userName = "";
-let userFlag = 0;
+//let userName = "";
 let auth = fbauth.getAuth(app);
-//et user = fbauth.getCurrentUser;
+let currentUser = null;
 
 /********* END FIREBASE CONNECTION CODE *********/
 
@@ -41,59 +40,52 @@ let auth = fbauth.getAuth(app);
 
 /********* START USER AUTHENTICATION *********/
 
-function renderDiscord(username){
-  $(".user-auth").hide();
-  $("<div class=user-info></div>").insertAfter( ".user-auth" );
-  $("#logout").show();
-  $(".user-info").append($( "<h3 class=header  id=screenName>USER: " + username + "</h3>" ));
- // $(".user-info").append($( ""));
- // $( "<h3 class=header id=screenName>USER: " + username + "</h3>" ).insertAfter( ".user-auth" );
-  //$( "<button type=button id=logout>LOG OUT</button>").insertAfter( "#screenName" );
-  //$("#screenName,#logout").css('display','inline-block');
-  $(".discord").show();
-  userFlag = 1;
-}
 
-
+//Login to discord
 $("#login").on("click",function(){
-  //show login options and hide register options
-  $(".user-auth-reg").hide();
-  $(".user-auth-reset").hide();
-  $(".user-auth-login").show();
   let email = $("#userEmail").val();
   let password = $("#userPassword").val()
-
   fbauth.signInWithEmailAndPassword(auth, email, password).then(currUser=>{
-    console.log("success");
-    console.log(currUser);
-    let uid = currUser.user.uid;
-    userName = currUser.user.displayName;
-    renderDiscord(userName);
-    loadChats();
+    //console.log(currUser);
     }).catch(function(error){
     let errorCode = error.code;
     let errorMsg = error.message;
     console.log(errorCode);
     console.log(errorMsg);
   })
-
 })
 
+//logout of discord
 $("#logout").on("click",function(){
   fbauth.signOut(auth).then(()=>{
-    let userId = "";
-    $('.user-auth-login').find('input:text').val('');
-    $('.user-auth-login').find('input:password').val('');
-    $('.discord').hide();
-    $('.user-info').hide();
-    $('#logout').hide();
-    $(".user-auth").show()();
     console.log("sign out success");
   })
 })
 
 
+fbauth.onAuthStateChanged(auth, user=> {
+  if (!!user) { //user is signed in
+    //show login options and hide register options
+    $(".user-auth-reg").hide();
+    $(".user-auth-reset").hide();
+    $(".user-auth-login").show();
+    currentUser = user;
+    renderDiscord(currentUser.displayName);
+    loadChats();
+  }
+  else{ //user is signed out
+    currentUser = null;
+    $('.user-auth').find('input:text').val('');
+    $('.user-auth').find('input:password').val('');
+    $('.discord').hide();
+    $('.user-info').hide();
+    $('#logout').hide();
+    $(".user-auth").show();
+  }
+});
 
+
+//register new account
 $("#register").on("click",function(){
   $(".user-auth-login").hide();
   $(".user-auth-reset").hide();
@@ -102,8 +94,7 @@ $("#register").on("click",function(){
   let password = $("#regPassword").val();
   let username = $("#regUsername").val();
 
-  fbauth.createUserWithEmailAndPassword(auth, email, password,{displayName:username}).then(newUser=>{
-    
+  fbauth.createUserWithEmailAndPassword(auth, email, password).then(newUser=>{
     let uid = newUser.user.uid;
     let userObj = {"uid":uid,"username":username,active:true,"roles":{"user":true}};
     let userRef = rtdb.ref(db, `/users/${uid}`);
@@ -127,9 +118,6 @@ $("#register").on("click",function(){
   })
 
   fbauth.signOut(auth).then(()=>{
-    let userId = "";
-    $('.user-auth-reg').find('input:text').val('');
-    $('.user-auth-reg').find('input:password').val('');
     console.log("sign out success");
   })
   
@@ -149,10 +137,17 @@ $("#resetPassword").on("click",function(){
   .catch((error) => {
     const errorCode = error.code;
     const errorMessage = error.message;
-    // ..
   });
 
 })
+
+function renderDiscord(username){
+  $(".user-auth").hide();
+  $("<div class=user-info></div>").insertAfter( ".user-auth" );
+  $("#logout").show();
+  $(".user-info").append($( "<h3 class=header  id=screenName>USER: " + username + "</h3>" ));
+  $(".discord").show();
+}
 
 
 /********* END USER AUTHENTICATION *********/
@@ -186,20 +181,13 @@ $("#clear").on("click",function(){
 
 /* Sends msg to db */
 $("#send").on("click",function(){
-  if (userFlag == 1){
     let date = getDate();
     let msg = $("#msg").val();
-    let msgObj = {"msg":msg,"user":userName,"date":date};
+    let msgObj = {"msg":msg,"user":userName,"uid":currentUser.user.uid, "date":date};
     //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
     loadChats();
-  }
-  else{
-    alert("You must enter a username before sending a message!");
-    $("#msg").val('');
-  }
-  
 })
 
 
@@ -317,3 +305,18 @@ function getDate(){
 }
 
 
+
+
+/********* HELPER FUNCTIONS *********/
+/*
+function channelSanitize(name){
+  let sanitizedName = name.replace(/\s/g, '-').toLowerCase();
+  sanitizedName = sanitizedName.
+  
+}
+
+function sanitizeHTML(input){
+
+}
+*/
+/********* HELPER FUNCTIONS *********/
