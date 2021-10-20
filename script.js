@@ -225,7 +225,7 @@ $("#clear").on("click",function(){
 /* Sends msg to db */
 $("#send").on("click",function(){
     let msg = $("#msg").val();
-    let msgObj = {"msg":msg,"user":auth.currentUser.displayName,"uid":auth.currentUser.uid};
+    let msgObj = {"msg":msg,"user":auth.currentUser.displayName,"uid":auth.currentUser.uid,"edited":false};
     //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
@@ -278,8 +278,9 @@ function editMessage(evt, msgId){
     let editedMsg = $("#editMsg").val();
     //alert(editedMsg);
     let editRef = rtdb.ref(db, `/channels/${currentChannel}/chats/${msgId}`);
-    rtdb.update(editRef,{"msg":editedMsg});
-    
+    rtdb.update(editRef,{"msg":editedMsg,"edited":true});
+    //$(`[data-id=${msgId}]`).children("#span-user").append(`<small>  (edited) </small>`);
+    loadChats();
    });
    $("#cancelEditChat").on("click",function(){
     $(`[data-id=${msgId}]`).children("#span-user").find("button").remove();
@@ -315,9 +316,12 @@ function displayChats(chatObj){
   let divide = ": "
   if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
-    //CHECK W/ PROF if I leave following code like this, can someone change plaintext only to true, thus incurring security issue
     let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span id="span-user"> ${chatObj[chatID]["msg"]}</span></div>`);
     $("#chatHist").append($div);
+    if ( chatObj[chatID]["edited"] === true){
+      console.log("HERE");
+      $(`[data-id=${chatID}]`).children("#span-user").append(`<small>  (edited)</small>`);
+    }
     $('#chatHist').scrollTop($('#chatHist').height());
     $div.click((event)=>{
       let clickedChat = $(event.currentTarget).attr("data-id");
