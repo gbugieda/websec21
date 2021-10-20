@@ -113,6 +113,9 @@ ul{
 }
 #channelList{
   text-align:left;
+  width:100%;
+  height: 70%;
+  overflow:auto; 
 }
 
 .channelElem{
@@ -130,11 +133,13 @@ ul{
   overflow:auto; 
   display:flex; 
   flex-direction:column;
-  height: 350px;
-  width: 200px;
+  overflow-anchor:auto;
+  height: 90%;
+  width: 100%;
 
 
 }
+
 .chat-functionality-send{
   position: absolute;
   align-items: baseline;
@@ -146,4 +151,17 @@ ul{
   text-align: center;
   border: 10px solid#45A29E;
 }
+#activeUsersList{
+  overflow:auto; 
+  overflow-anchor:auto;
+  height:90%;
+  color:#45A29E;
+}
 
+.channelElem{
+  width:100%;
+}
+
+.chatElem{
+  width:100%;
+}

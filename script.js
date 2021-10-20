@@ -14,9 +14,20 @@ const firebaseConfig = {
   appId: "1:332741772190:web:aaa0db201b1a651b914c8f"
 };
 
+
+//let userName = "";
+
+
+
 // Initialize Firebase & Ref variables
 const app = initializeApp(firebaseConfig);
 let db = rtdb.getDatabase(app);
+
+let auth = fbauth.getAuth(app);
+let currentUser = null;
+let currentUserName = "";
+
+
 let titleRef = rtdb.ref(db, "/");
 
 let userRef = rtdb.child(titleRef,"users")
@@ -27,9 +38,8 @@ let channelCreatedRef = rtdb.ref(db, `/channels/${currentChannel}`);
 let chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
 
 
-//let userName = "";
-let auth = fbauth.getAuth(app);
-let currentUser = null;
+
+
 
 /********* END FIREBASE CONNECTION CODE *********/
 
@@ -46,7 +56,6 @@ $("#login").on("click",function(){
   let email = $("#userEmail").val();
   let password = $("#userPassword").val()
   fbauth.signInWithEmailAndPassword(auth, email, password).then(currUser=>{
-    //console.log(currUser);
     }).catch(function(error){
     let errorCode = error.code;
     let errorMsg = error.message;
@@ -57,23 +66,37 @@ $("#login").on("click",function(){
 
 //logout of discord
 $("#logout").on("click",function(){
+  console.log(auth.currentUser);
+  let activeUserRef = rtdb.ref(db,`/users/${auth.currentUser.uid}/active`);
+  rtdb.set(activeUserRef,false);
   fbauth.signOut(auth).then(()=>{
     console.log("sign out success");
   })
 })
 
 
+
+
 fbauth.onAuthStateChanged(auth, user=> {
   if (!!user) { //user is signed in
-    //show login options and hide register options
-    $(".user-auth-reg").hide();
-    $(".user-auth-reset").hide();
-    $(".user-auth-login").show();
-    currentUser = user;
-    renderDiscord(currentUser.displayName);
+   let usernameRef = rtdb.ref(db,`/users/${auth.currentUser.uid}/username`)
+   let activeUserRef = rtdb.ref(db,`/users/${auth.currentUser.uid}/active`);
+   
+   rtdb.get(usernameRef).then(ss=>{
+     currentUserName = ss.val();
+   })
+    currentUser = auth.currentUser.uid;
+    if (currentUserName == ""){
+      currentUserName = auth.currentUser.displayName;
+    }
+    
+    rtdb.set(activeUserRef,true);
+    renderDiscord(currentUserName);
     loadChats();
+    loadUsers();
   }
   else{ //user is signed out
+    
     currentUser = null;
     $('.user-auth').find('input:text').val('');
     $('.user-auth').find('input:password').val('');
@@ -93,8 +116,9 @@ $("#register").on("click",function(){
   let email = $("#regEmail").val();
   let password = $("#regPassword").val();
   let username = $("#regUsername").val();
+  currentUserName = username;
 
-  fbauth.createUserWithEmailAndPassword(auth, email, password).then(newUser=>{
+   fbauth.createUserWithEmailAndPassword(auth, email, password,{displayName:username}).then(newUser=>{
     let uid = newUser.user.uid;
     let userObj = {"uid":uid,"username":username,active:true,"roles":{"user":true}};
     let userRef = rtdb.ref(db, `/users/${uid}`);
@@ -106,7 +130,7 @@ $("#register").on("click",function(){
     }).then(function() {
     }, function(error) {
     });
-
+    
     }).catch(function(error){
     let errorCode = error.code;
     let errorMsg = error.message;
@@ -115,15 +139,12 @@ $("#register").on("click",function(){
     }
     console.log(errorCode);
     console.log(errorMsg);
-  })
-
-  fbauth.signOut(auth).then(()=>{
-    console.log("sign out success");
-  })
-  
+})
 
 })
 
+
+//reset password
 $("#resetPassword").on("click",function(){
   $(".user-auth-login").hide();
   $(".user-auth-reg").hide();
@@ -141,13 +162,17 @@ $("#resetPassword").on("click",function(){
 
 })
 
+//DISCORD SHOW
 function renderDiscord(username){
+  //console.log(username);
   $(".user-auth").hide();
   $("<div class=user-info></div>").insertAfter( ".user-auth" );
   $("#logout").show();
   $(".user-info").append($( "<h3 class=header  id=screenName>USER: " + username + "</h3>" ));
   $(".discord").show();
+  
 }
+
 
 
 /********* END USER AUTHENTICATION *********/
@@ -159,6 +184,15 @@ function loadChats(){
      displayChats(message);
  // }
   })
+} 
+
+function loadUsers(){
+  rtdb.onValue(userRef, ss=>{
+    let users = ss.val();
+    if (!!users){
+       displayActiveUsers(users);
+    }
+})
 } 
 
 rtdb.onChildRemoved(chatRef, ss=>{
@@ -181,9 +215,8 @@ $("#clear").on("click",function(){
 
 /* Sends msg to db */
 $("#send").on("click",function(){
-    let date = getDate();
     let msg = $("#msg").val();
-    let msgObj = {"msg":msg,"user":userName,"uid":currentUser.user.uid, "date":date};
+    let msgObj = {"msg":msg,"user":userName,"uid":currentUser.user.uid};
     //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
@@ -221,15 +254,8 @@ $("#addChannel").on("click",function(){
 
 //TODO: If current content editable is insecure, adapt this function to fix security issues
 function editMessage(evt, msgId){
-  //get userID from database
-  //check if user id matches msg ID
-  //if so, allow edit, if not don't allow
+
   if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
-    //console.log(child(String(msgId)));
-    alert(msgId);
-   // $(`[data-id=${msgId}]`).attr()
-    //$(`[data-id=${msgId}]`).hide();
-  
    $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg">`);
    $(`[data-id=${msgId}]`).append(`<button id=editChat>Make Edit</button>`);
    $(`[data-id=${msgId}]`).append(`<button id=cancelEditChat>Cancel</button>`);
@@ -274,13 +300,15 @@ function displayChannels(channelObj){
 }
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
+  $("#chat-functionality").append(`<input type="text" id="editMsg" name="msg">`);
   let divide = ": "
   if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
     //CHECK W/ PROF if I leave following code like this, can someone change plaintext only to true, thus incurring security issue
-    let $li = $(`<li class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span> ${chatObj[chatID]["msg"]}</span></li>`);
-    $("#chatHist").append($li);
-    $li.click((event)=>{
+    let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span> ${chatObj[chatID]["msg"]}</span></div>`);
+    $("#chatHist").append($div);
+    $('#chatHist').scrollTop($('#chatHist').height());
+    $div.click((event)=>{
       let clickedChat = $(event.currentTarget).attr("data-id");
       editMessage(event,clickedChat);
      // alert("here");
@@ -294,15 +322,28 @@ function displayChats(chatObj){
 
 }
 
-function getDate(){
-  let date = new Date();
-  let month = date.getMonth();
-  let day = date.getDate();
-  let year = date.getFullYear();
-  let res = month + '/' + day + '/' + year;
-  return res;
-  
+
+function displayActiveUsers(userObj){
+  $("#activeUsersList").empty(); //empty list on page
+  if(userObj != null){
+    Object.keys(userObj).map(userID=>{
+      let userIdRef = rtdb.ref(db, `/users/${userID}`);
+      rtdb.get(userIdRef).then(ss=>{
+        let userData = ss.val();
+        if (userData.active == true){
+          console.log(userData.username);
+          let $div = $(`<div class="activeUserElem">${userData.username}</button>`);
+          $("#activeUsersList").append($div);
+        }
+      })
+     // let $div = $(`<div class="activeUserElem">${}</div>`);
+     // $("#activeUsersList").append($div);
+
+    })
+  }
 }
+
+
 
 
 
