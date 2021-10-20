@@ -276,16 +276,16 @@ $("#addChannel").on("click",function(){
 function editMessage(evt, msgId){
 
   if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
-   $(`[data-id=${msgId}]`).children("#span-user").append(`<input type="text" id="editMsg" name="msg">`);
-   $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=editChat>Make Edit</button>`);
-   $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=cancelEditChat>Cancel</button>`);
+   $(`[data-id=${msgId}]`).children(`#${msgId}text-user`).append(`<input type="text" id="editMsg" name="msg">`);
+   $(`[data-id=${msgId}]`).children(`#${msgId}text-user`).append(`<button id=editChat>Make Edit</button>`);
+   $(`[data-id=${msgId}]`).children(`#${msgId}text-user`).append(`<button id=cancelEditChat>Cancel</button>`);
 
   console.log(auth.currentUser);
   let userRoleRef = rtdb.ref(db, `/users/${auth.currentUser.uid}/roles`);
   rtdb.get(userRoleRef).then(ss=>{
     let userData = ss.val();
     if (userData.admin === true){
-       $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=deleteChat>Delete</button>`);
+       $(`[data-id=${msgId}]`).children(`#${msgId}text-user`).append(`<button id=deleteChat>Delete</button>`);
        $("#deleteChat").on("click",function(){
         console.log("DEL");
         let editRef = rtdb.ref(db, `/channels/${currentChannel}/chats/${msgId}`);
@@ -302,13 +302,13 @@ function editMessage(evt, msgId){
     //alert(editedMsg);
     let editRef = rtdb.ref(db, `/channels/${currentChannel}/chats/${msgId}`);
     rtdb.update(editRef,{"msg":editedMsg,"edited":true});
-    //$(`[data-id=${msgId}]`).children("#span-user").append(`<small>  (edited) </small>`);
+    //$(`[data-id=${msgId}]`).children("#").append(`<small>  (edited) </small>`);
     loadChats();
    });
 
    $("#cancelEditChat").on("click",function(){
-    $(`[data-id=${msgId}]`).children("#span-user").find("button").remove();
-    $(`[data-id=${msgId}]`).children("#span-user").find("input").remove();
+    $(`[data-id=${msgId}]`).children(`#${msgId}text-user`).find("button").remove();
+    $(`[data-id=${msgId}]`).children(`#${msgId}text-user`).find("input").remove();
   });
 
   }
@@ -339,11 +339,17 @@ function displayChats(chatObj){
   let divide = ": "
   if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
-    let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><text id="span-user"> ${chatObj[chatID]["msg"]}</text></div>`);
+    let $div = $(`<div class="chatElem"  data-id=${chatID}>
+    <span class=header id="${chatID}chatUserName"></span>
+    <text id="${chatID}text-user"> </text></div>`);
+
     $("#chatHist").append($div);
+    console.log(chatID);
+    $(`#${chatID}chatUserName`).text(`${chatObj[chatID]["user"]}${divide}`);
+    $(`#${chatID}text-user`).text(`${chatObj[chatID]["msg"]}`);
     if ( chatObj[chatID]["edited"] === true){
       console.log("HERE");
-      $(`[data-id=${chatID}]`).children("#span-user").append(`<small>  (edited)</small>`);
+      $(`[data-id=${chatID}]`).children(`#${chatID}text-user`).append(`<small>  (edited)</small>`);
     }
     $('#chatHist').scrollTop($('#chatHist').height());
     $div.click((event)=>{
