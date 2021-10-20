@@ -124,8 +124,10 @@ $("#register").on("click",function(){
   let password = $("#regPassword").val();
   let username = $("#regUsername").val();
   currentUserName = username;
+  currentUser = auth.currentUser;
 
    fbauth.createUserWithEmailAndPassword(auth, email, password,{displayName:username}).then(newUser=>{
+    currentUser = auth;
     let uid = newUser.user.uid;
     let userObj = {"uid":uid,"username":username,active:true,"roles":{"user":true}};
     let userRef = rtdb.ref(db, `/users/${uid}`);
@@ -246,6 +248,7 @@ function loadChannels(){
 
 $("#addChannel").on("click",function(){
   let channelName = $("#addChannelBox").val();
+  escapeHtml(channelName);
   let currChannel = channelName;
   channelCreatedRef = rtdb.ref(db, `/channels/${currChannel}`);
   chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
@@ -262,7 +265,7 @@ $("#addChannel").on("click",function(){
 
 
 
-//TODO: If current content editable is insecure, adapt this function to fix security issues
+
 function editMessage(evt, msgId){
 
   if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
@@ -270,8 +273,20 @@ function editMessage(evt, msgId){
    $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=editChat>Make Edit</button>`);
    $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=cancelEditChat>Cancel</button>`);
 
+  console.log(auth.currentUser);
+  let userRoleRef = rtdb.ref(db, `/users/${auth.currentUser.uid}/roles`);
+  rtdb.get(userRoleRef).then(ss=>{
+    let userData = ss.val();
+    if (userData.admin === true){
+       $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=deleteChat>Delete</button>`);
+       $("#deleteChat").on("click",function(){
+        console.log("DEL");
+        let editRef = rtdb.ref(db, `/channels/${currentChannel}/chats/${msgId}`);
+        rtdb.set(editRef,{});
+        loadChats();
+      });
+    }});
   
-
    
    $("#editChat").on("click",function(){
      //console.log("here edit click");
@@ -282,6 +297,7 @@ function editMessage(evt, msgId){
     //$(`[data-id=${msgId}]`).children("#span-user").append(`<small>  (edited) </small>`);
     loadChats();
    });
+
    $("#cancelEditChat").on("click",function(){
     $(`[data-id=${msgId}]`).children("#span-user").find("button").remove();
     $(`[data-id=${msgId}]`).children("#span-user").find("input").remove();
@@ -312,11 +328,10 @@ function displayChannels(channelObj){
 }
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
-  //$("#chat-functionality").append(`<input type="text" id="editMsg" name="msg">`);
   let divide = ": "
   if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
-    let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span id="span-user"> ${chatObj[chatID]["msg"]}</span></div>`);
+    let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><text id="span-user"> ${chatObj[chatID]["msg"]}</text></div>`);
     $("#chatHist").append($div);
     if ( chatObj[chatID]["edited"] === true){
       console.log("HERE");
@@ -326,14 +341,11 @@ function displayChats(chatObj){
     $div.click((event)=>{
       let clickedChat = $(event.currentTarget).attr("data-id");
       editMessage(event,clickedChat);
-     // alert("here");
+
     })
-   // $("#chatHist").append(`<li class="chatElem" data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}</li>`);
   })
-  //With date below:
+ 
 }
-  //$("#chatHist").append(`<li><span class=header> ${chatObj[chatID]["user"]}</span>` + ": " + `${chatObj[chatID]["msg"]}` + '(' + `<i>${chatObj[chatID]["date"]}` + ')' + `</i></li>`);
-  //alert("here");
 
 }
 
@@ -362,16 +374,16 @@ function displayActiveUsers(userObj){
 
 
 
-/********* HELPER FUNCTIONS *********/
-/*
+/********* HELPER FUNCTIONS *********
 function channelSanitize(name){
   let sanitizedName = name.replace(/\s/g, '-').toLowerCase();
-  sanitizedName = sanitizedName.
-  
+  sanitizedName = sanitizedName.escapeHTML();
+  console.log(sanitizedName);
 }
 
-function sanitizeHTML(input){
 
+function escapeHtml(str) {
+  return str.replace(/&/g, "&").replace(/</g, "").replace(/>/g, "").replace(/"/g, "").replace(/'/g, "");
 }
-*/
-/********* HELPER FUNCTIONS *********/
+
+********* HELPER FUNCTIONS *********/
