@@ -60,6 +60,9 @@ $("#login").on("click",function(){
   $(".user-auth-login").show();
   let email = $("#userEmail").val();
   let password = $("#userPassword").val()
+  email = inputSanitize(email);
+
+
   fbauth.signInWithEmailAndPassword(auth, email, password).then(currUser=>{
     }).catch(function(error){
     let errorCode = error.code;
@@ -123,6 +126,8 @@ $("#register").on("click",function(){
   let email = $("#regEmail").val();
   let password = $("#regPassword").val();
   let username = $("#regUsername").val();
+  email = inputSanitize(email);
+  username = inputSanitize(username);
   currentUserName = username;
   currentUser = auth.currentUser;
 
@@ -227,6 +232,7 @@ $("#clear").on("click",function(){
 /* Sends msg to db */
 $("#send").on("click",function(){
     let msg = $("#msg").val();
+    msg = inputSanitize(msg);
     let msgObj = {"msg":msg,"user":auth.currentUser.displayName,"uid":auth.currentUser.uid,"edited":false};
     //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
@@ -248,8 +254,9 @@ function loadChannels(){
 
 $("#addChannel").on("click",function(){
   let channelName = $("#addChannelBox").val();
-  escapeHtml(channelName);
+  channelName = channelSanitize(channelName);
   let currChannel = channelName;
+  currentChannel = currChannel;
   channelCreatedRef = rtdb.ref(db, `/channels/${currChannel}`);
   chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
   let navRef = rtdb.ref(db,`/channel-nav/${currChannel}/`);
@@ -291,6 +298,7 @@ function editMessage(evt, msgId){
    $("#editChat").on("click",function(){
      //console.log("here edit click");
     let editedMsg = $("#editMsg").val();
+    editedMsg = inputSanitize(editedMsg);
     //alert(editedMsg);
     let editRef = rtdb.ref(db, `/channels/${currentChannel}/chats/${msgId}`);
     rtdb.update(editRef,{"msg":editedMsg,"edited":true});
@@ -374,16 +382,19 @@ function displayActiveUsers(userObj){
 
 
 
-/********* HELPER FUNCTIONS *********
+/********* HELPER FUNCTIONS *********/
 function channelSanitize(name){
   let sanitizedName = name.replace(/\s/g, '-').toLowerCase();
-  sanitizedName = sanitizedName.escapeHTML();
   console.log(sanitizedName);
+  sanitizedName = inputSanitize(sanitizedName);
+
+  console.log(sanitizedName);
+  return sanitizedName;
 }
 
 
-function escapeHtml(str) {
-  return str.replace(/&/g, "&").replace(/</g, "").replace(/>/g, "").replace(/"/g, "").replace(/'/g, "");
+function inputSanitize(str) {
+  return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
 }
 
-********* HELPER FUNCTIONS *********/
+/********* HELPER FUNCTIONS *********/
