@@ -256,7 +256,7 @@ $("#addChannel").on("click",function(){
   let channelName = $("#addChannelBox").val();
   channelName = channelSanitize(channelName);
   let currChannel = channelName;
-  currentChannel = currChannel;
+  //currentChannel = currChannel;
   channelCreatedRef = rtdb.ref(db, `/channels/${currChannel}`);
   chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
   let navRef = rtdb.ref(db,`/channel-nav/${currChannel}/`);
@@ -394,7 +394,7 @@ function channelSanitize(name){
 
 
 function inputSanitize(str) {
-  return str.replace(/[&\/\\#,+()$~%.'":*?<>{}]/g, '');
+  return str.replace(/[&\/\\#,+()$~%'":*?<>{}]/g, '');
 }
 
 /********* HELPER FUNCTIONS *********/
