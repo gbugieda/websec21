@@ -53,6 +53,11 @@ let chatRef = rtdb.ref(db, `/channels/${currentChannel}/chats`);
 
 //Login to discord
 $("#login").on("click",function(){
+  $('.discord').hide();
+  $('.user-auth-reg').hide();
+  $('.user-auth-reset').hide();
+  $('#logout').hide();
+  $(".user-auth-login").show();
   let email = $("#userEmail").val();
   let password = $("#userPassword").val()
   fbauth.signInWithEmailAndPassword(auth, email, password).then(currUser=>{
@@ -93,11 +98,13 @@ fbauth.onAuthStateChanged(auth, user=> {
     rtdb.set(activeUserRef,true);
     renderDiscord(currentUserName);
     loadChats();
+    loadChannels();
     loadUsers();
+    
   }
   else{ //user is signed out
-    
     currentUser = null;
+
     $('.user-auth').find('input:text').val('');
     $('.user-auth').find('input:password').val('');
     $('.discord').hide();
@@ -178,7 +185,9 @@ function renderDiscord(username){
 /********* END USER AUTHENTICATION *********/
 
 function loadChats(){
+  console.log(currentChannel);
   rtdb.onValue(chatRef, ss=>{
+    console.log("on value");
   let message = ss.val();
   //if (!!message){
      displayChats(message);
@@ -216,10 +225,11 @@ $("#clear").on("click",function(){
 /* Sends msg to db */
 $("#send").on("click",function(){
     let msg = $("#msg").val();
-    let msgObj = {"msg":msg,"user":userName,"uid":currentUser.user.uid};
+    let msgObj = {"msg":msg,"user":auth.currentUser.displayName,"uid":auth.currentUser.uid};
     //let channelChatRef = rtdb.ref(db, `/${currentChannel}/chats`);
     rtdb.push(chatRef,msgObj);
     $("#msg").val('');
+    console.log("before load chats");
     loadChats();
 })
 
@@ -227,9 +237,9 @@ $("#send").on("click",function(){
 function loadChannels(){
   rtdb.onValue(channelCreatedRef, ss=>{
     let message = ss.val();
-    if (!!message){
+    //if (!!message){
       displayChats(message);
-    }
+    //}
   })
 }
 
@@ -256,9 +266,9 @@ $("#addChannel").on("click",function(){
 function editMessage(evt, msgId){
 
   if (evt.target === evt.currentTarget && $(`[data-id=${msgId}]`).children("#editMsg").length == 0){
-   $(`[data-id=${msgId}]`).append(`<input type="text" id="editMsg" name="msg">`);
-   $(`[data-id=${msgId}]`).append(`<button id=editChat>Make Edit</button>`);
-   $(`[data-id=${msgId}]`).append(`<button id=cancelEditChat>Cancel</button>`);
+   $(`[data-id=${msgId}]`).children("#span-user").append(`<input type="text" id="editMsg" name="msg">`);
+   $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=editChat>Make Edit</button>`);
+   $(`[data-id=${msgId}]`).children("#span-user").append(`<button id=cancelEditChat>Cancel</button>`);
 
   
 
@@ -272,7 +282,8 @@ function editMessage(evt, msgId){
     
    });
    $("#cancelEditChat").on("click",function(){
-    $(`[data-id=${msgId}]`).empty();
+    $(`[data-id=${msgId}]`).children("#span-user").find("button").remove();
+    $(`[data-id=${msgId}]`).children("#span-user").find("input").remove();
   });
 
   }
@@ -300,12 +311,12 @@ function displayChannels(channelObj){
 }
 function displayChats(chatObj){
   $("#chatHist").empty(); //empty list on page
-  $("#chat-functionality").append(`<input type="text" id="editMsg" name="msg">`);
+  //$("#chat-functionality").append(`<input type="text" id="editMsg" name="msg">`);
   let divide = ": "
   if(chatObj != null){
   Object.keys(chatObj).map(chatID=>{
     //CHECK W/ PROF if I leave following code like this, can someone change plaintext only to true, thus incurring security issue
-    let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span> ${chatObj[chatID]["msg"]}</span></div>`);
+    let $div = $(`<div class="chatElem"  data-id=${chatID}><span class=header> ${chatObj[chatID]["user"]}${divide}</span><span id="span-user"> ${chatObj[chatID]["msg"]}</span></div>`);
     $("#chatHist").append($div);
     $('#chatHist').scrollTop($('#chatHist').height());
     $div.click((event)=>{
@@ -332,12 +343,11 @@ function displayActiveUsers(userObj){
         let userData = ss.val();
         if (userData.active == true){
           console.log(userData.username);
+          console.log("time");
           let $div = $(`<div class="activeUserElem">${userData.username}</button>`);
           $("#activeUsersList").append($div);
         }
       })
-     // let $div = $(`<div class="activeUserElem">${}</div>`);
-     // $("#activeUsersList").append($div);
 
     })
   }
