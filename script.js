@@ -319,8 +319,9 @@ function displayChannels(channelObj){
 
   Object.keys(channelObj).map(channelID=>{
     console.log(channelID);
-    let $li = $(`<button class="channelElem" id=${channelID}>${channelID}</button>`);
+    let $li = $(`<button class="channelElem" id=${channelID}></button>`);
     $("#channelList").append($li);
+    $(`#${channelID}`).text(`${channelID}`);
     $li.click((event)=>{
       
       //let clickedChat = $(event.currentTarget).attr("data-id");
